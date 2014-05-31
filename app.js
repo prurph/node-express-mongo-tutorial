@@ -5,6 +5,11 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+// link to Mongo
+var mongo = require('mongodb');
+var monk = require('monk');
+var db = monk('localhost:3000/nodetest1');
+
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
@@ -21,6 +26,14 @@ app.use(bodyParser.urlencoded());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// make db accessible to router; this actually adds db to every HTTP request app
+// makes; for a real app this is obviously sub-optimal
+app.use(function(req, res, next) {
+    req.db = db;
+    next();
+});
+
+// use the above routers for the below routes
 app.use('/', routes);
 app.use('/users', users);
 
